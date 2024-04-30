@@ -6,22 +6,22 @@ export async function GET() {
     await pool.connect();
 
     const results = await pool.request().query(`
-    select j.DataID as JobDataID, j.JobCode, j.JobDate, bf.DataID as BatchFormulaDataID, bf.FormulaDescription1, count(*) as TotalBatch
-    , COUNT(CASE WHEN UPPER(jb.JobBatchStatus) = 'FINISH' THEN 1 END) as WeightFinishBatch
-    , COUNT(CASE WHEN UPPER(jb.JobBatchCheckStatus) = 'FINISH' THEN 1 END) as CheckFinishBatch
-    from Job j, JobBatch jb, BatchFormula bf
-    where j.DataID = jb.JobDataID
-    and jb.BatchFormulaDataID = bf.DataID
-    and j.IsCurrent = 'Y' and j.IsActive = 'Y'
-    and jb.IsCurrent = 'Y' and jb.IsActive = 'Y'
-    and bf.IsCurrent = 'Y' and bf.IsActive = 'Y'
-    and j.JobDate > (GETDATE() - 30)
-    and ((UPPER(j.JobCheckStatus) <> 'FINISH') or ((j.JobCheckStatus IS NULL) or (j.JobCheckStatus = '')) or (CAST(j.JobCheckTime AS DATE) = CAST(GETDATE() AS DATE)))
-    group by j.DataID, j.JobCode, j.JobDate, bf.DataID, bf.FormulaDescription1
-    order by j.JobDate, j.JobCode, bf.FormulaDescription1    
+    select j.DataID as JobDataID, j.JobCode, j.JobDate, j.JobCheckStatus, bf.DataID as BatchFormulaDataID, bf.FormulaDescription1, count(*) as TotalBatch
+, COUNT(CASE WHEN UPPER(jb.JobBatchStatus) = 'FINISH' THEN 1 END) as WeightFinishBatch
+, COUNT(CASE WHEN UPPER(jb.JobBatchCheckStatus) = 'FINISH' THEN 1 END) as CheckFinishBatch
+from Job j, JobBatch jb, BatchFormula bf
+where j.DataID = jb.JobDataID
+and jb.BatchFormulaDataID = bf.DataID
+and j.IsCurrent = 'Y' and j.IsActive = 'Y'
+and jb.IsCurrent = 'Y' and jb.IsActive = 'Y'
+and bf.IsCurrent = 'Y' and bf.IsActive = 'Y'
+and j.JobDate > (GETDATE() - 30)
+and ((UPPER(j.JobCheckStatus) <> 'FINISH') or ((j.JobCheckStatus IS NULL) or (j.JobCheckStatus = '')) or (CAST(j.JobCheckTime AS DATE) = CAST(GETDATE() AS DATE)))
+group by j.DataID, j.JobCode, j.JobDate, j.JobCheckStatus, bf.DataID, bf.FormulaDescription1
+order by j.JobDate, j.JobCode, bf.FormulaDescription1
                     `);
-
-    return NextResponse.json({ data: results.recordset }, { status: 201 });
+    //console.log(results.recordset);
+    return NextResponse.json(results.recordset, { status: 201 });
   } catch (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   } finally {

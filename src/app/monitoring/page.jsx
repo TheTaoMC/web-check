@@ -1,30 +1,40 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
 import Container from "../components/Container";
 import UIDataTable from "./ui/UIDataTable";
 
 function Monitoring() {
-  const datas = [
-    {
-      code: "f230fh0g1",
-      name: "Bamboo Watch",
-      category: "Accessories",
-      quantity: 24,
-    },
-    {
-      code: "f230fh0g2",
-      name: "Bamboo Watc2",
-      category: "Accessorie2",
-      quantity: 25,
-    },
-  ];
+  const [datas, setDatas] = useState([]);
+
+  const getDatas = async () => {
+    const response = await fetch("http://localhost:3000/api/getMonitoring", {
+      method: "GET",
+    });
+
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
+    const res = await response.json();
+    console.log(res);
+    setDatas(res);
+  };
+
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      await getDatas();
+    }, 5000); // เรียก getDatas ทุกๆ 5 วินาที
+
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <>
       <Navbar />
       <Container>
-        <UIDataTable values={datas} />
+        <div className="pt-4">
+          <UIDataTable values={datas} />
+        </div>
       </Container>
     </>
   );

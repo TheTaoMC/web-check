@@ -8,11 +8,13 @@ function Navbar() {
   const router = useRouter();
   return (
     <>
-      <Container>
-        <div className="text-right">
-          <Link href="/">Logout</Link>
-        </div>
-      </Container>
+      <div className="bg-black">
+        <Container>
+          <div className="text-right h-10 text-white">
+            <Link href="/">Logout</Link>
+          </div>
+        </Container>
+      </div>
     </>
   );
 }
